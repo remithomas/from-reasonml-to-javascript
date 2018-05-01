@@ -1,0 +1,7 @@
+.merlin
+.bsb.lock
+lib
+node_modules
+coverage/
+.coveralls.yml
+.log

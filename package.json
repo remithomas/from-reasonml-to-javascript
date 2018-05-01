@@ -1,0 +1,19 @@
+{
+  "name": "from-reasonml-to-javascript",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/remithomas/from-reasonml-to-javascript.git",
+  "author": "Remi THOMAS",
+  "license": "MIT",
+  "scripts": {
+    "start": "bsb -make-world -w",
+    "build": "bsb -make-world",
+    "clean": "bsb -clean-world",
+    "readme": "node index.js"
+  },
+  "dependencies": {
+    "bs-platform": "^3.0.0",
+    "co": "^4.6.0",
+    "thunkify": "^2.1.2"
+  }
+}
