@@ -24,8 +24,8 @@ let date = create_date_with_module();
 ```
 
 
-**Reason Input** : [Bs_New_Object_Module.bs.js](./src/Bs_New_Object_1/Bs_New_Object_Module.bs.js)
-```reason
+**Javascript Output** : [Bs_New_Object_Module.bs.js](./src/Bs_New_Object_1/Bs_New_Object_Module.bs.js)
+```js
 'use strict';
 
 var MyLib = require("myLib");
@@ -45,8 +45,8 @@ let date = create_date();
 ```
 
 
-**Reason Input** : [Bs_New_Object.bs.js](./src/Bs_New_Object_1/Bs_New_Object.bs.js)
-```reason
+**Javascript Output** : [Bs_New_Object.bs.js](./src/Bs_New_Object_1/Bs_New_Object.bs.js)
+```js
 'use strict';
 
 
@@ -70,8 +70,8 @@ let sample = "sample";
 ```
 
 
-**Reason Input** : [Sample.bs.js](./src/Sample_0/Sample.bs.js)
-```reason
+**Javascript Output** : [Sample.bs.js](./src/Sample_0/Sample.bs.js)
+```js
 'use strict';
 
 

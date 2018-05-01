@@ -55,11 +55,11 @@ function *printInfoFile(baseDir, file) {
 }
 
 function *printCodeFile(baseDir, file) {
-    const codeExtension = isReasonFile
+    const codeExtension = isReasonFile(file)
         ? REASON_CODE_EXTENSION
         : JS_CODE_EXTENSION;
 
-    const header = isReasonFile
+    const header = isReasonFile(file)
         ? 'Reason Input'
         : 'Javascript Output'
 
