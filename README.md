@@ -18,7 +18,7 @@ yarn install
 **Reason Input**
 
 [Bs_New_Object.re](./src/Bs_New_Object_1/Bs_New_Object.re)
-```re
+```reason
 type t;
 [@bs.new] external create_date : unit => t = "Date";
 let date = create_date();
@@ -26,7 +26,7 @@ let date = create_date();
 
 
 [Bs_New_Object_Module.re](./src/Bs_New_Object_1/Bs_New_Object_Module.re)
-```re
+```reason
 type t;
 [@bs.module "myLib"] [@bs.new] external create_date_with_module : unit => t = "Date";
 let date = create_date_with_module();
@@ -66,7 +66,7 @@ exports.date = date;
 **Reason Input**
 
 [Sample.re](./src/Sample_0/Sample.re)
-```re
+```reason
 let sample = "sample";
 ```
 
