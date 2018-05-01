@@ -32,19 +32,44 @@ function printCode(content, type) {
     );
 }
 
+function isTypeFile(file, extension) {
+    return file.substr(-1 * (extension.length)) === extension;
+}
+
+function isMarkdownFile(file) {
+    return isTypeFile(file, MARKDOWN_FILE_EXTENSION);
+}
+
+function isReasonFile(file) {
+    return isTypeFile(file, REASON_FILE_EXTENSION);
+}
+
+function isJsFile(file) {
+    return isTypeFile(file, JS_FILE_EXTENSION);
+}
+
 function *printInfoFile(baseDir, file) {
     const fileUri = baseDir + '/' + file;
     const content = yield read(fileUri);
     return content.toString();
 }
 
-function *printCodeFile(baseDir, file, codeExtension) {
+function *printCodeFile(baseDir, file) {
+    const codeExtension = isReasonFile
+        ? REASON_CODE_EXTENSION
+        : JS_CODE_EXTENSION;
+
+    const header = isReasonFile
+        ? 'Reason Input'
+        : 'Javascript Output'
+
     const fileUri = baseDir + '/' + file;
     const content = yield read(fileUri);
     const stringifiedContent = content.toString();
 
     return (
         LINE_SEPARATOR +
+        `**${header}** : ` +
         `[${file}](${fileUri})` +
         LINE_SEPARATOR +
         printCode(stringifiedContent, codeExtension)
@@ -60,21 +85,16 @@ function *readSampleDirectory(sampleDirectoryName) {
     const genereatedSampleFiles = yield listDirectories(dir);
 
     const mdInfos = yield genereatedSampleFiles
-        .filter((file) => file.substr(-1 * (MARKDOWN_FILE_EXTENSION.length)) === MARKDOWN_FILE_EXTENSION)
+        .filter((file) => isMarkdownFile(file))
         .map(function * (file) {
             return yield printInfoFile(dir, file);
         });
 
-    const reasonCodes = yield genereatedSampleFiles
-        .filter((file) => file.substr(-1 * (REASON_FILE_EXTENSION.length)) === REASON_FILE_EXTENSION)
+    const codes = yield genereatedSampleFiles
+        .filter((file) => isReasonFile(file) || isJsFile(file))
+        .reverse()
         .map(function * (file) {
-            return yield printCodeFile(dir, file, REASON_CODE_EXTENSION);
-        });
-
-    const jsCodes = yield genereatedSampleFiles
-        .filter((file) => file.substr(-1 * (JS_FILE_EXTENSION.length)) === JS_FILE_EXTENSION)
-        .map(function * (file) {
-            return yield printCodeFile(dir, file, JS_CODE_EXTENSION);
+            return yield printCodeFile(dir, file);
         });
 
     const INFO = !mdInfos.length 
@@ -85,13 +105,8 @@ function *readSampleDirectory(sampleDirectoryName) {
         `### ${deserializeTitle(sampleDirectoryName)}` +
         PARAGRAPH_SEPARATOR +
         INFO +
-        '**Reason Input**' + 
-        LINE_SEPARATOR +
-        reasonCodes.join(PARAGRAPH_SEPARATOR) +
-        PARAGRAPH_SEPARATOR +
-        '**Javascript output**' + 
-        LINE_SEPARATOR +
-        jsCodes.join(PARAGRAPH_SEPARATOR)
+        codes.join(PARAGRAPH_SEPARATOR) +
+        PARAGRAPH_SEPARATOR
     );
 }
 
