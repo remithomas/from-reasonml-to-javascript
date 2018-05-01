@@ -9,6 +9,7 @@
     "start": "bsb -make-world -w",
     "build": "bsb -make-world",
     "clean": "bsb -clean-world",
+    "prereadme": "npm run build",
     "readme": "node index.js"
   },
   "dependencies": {

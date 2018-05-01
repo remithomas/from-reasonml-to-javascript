@@ -1,1 +1,0 @@
-let sample = 2;

@@ -10,7 +10,18 @@ const LINE_SEPARATOR = '\n';
 const PARAGRAPH_SEPARATOR = LINE_SEPARATOR + LINE_SEPARATOR;
 const BASE_DIRECTORY = './src';
 const REASON_CODE_EXTENSION = 're';
+const REASON_FILE_EXTENSION = 're';
 const JS_CODE_EXTENSION = 'js';
+const JS_FILE_EXTENSION = 'bs.js';
+const MARKDOWN_FILE_EXTENSION = 'md';
+
+function deserializeTitle(serializedTitle) {
+    const index = serializedTitle.lastIndexOf('_');
+
+    return serializedTitle
+        .substr(0, index)
+        .replace(/_/gi, ' ');
+}
 
 function printCode(content, type) {
     return (
@@ -18,6 +29,25 @@ function printCode(content, type) {
         LINE_SEPARATOR +
         content +
         '```'
+    );
+}
+
+function *printInfoFile(baseDir, file) {
+    const fileUri = baseDir + '/' + file;
+    const content = yield read(fileUri);
+    return content.toString();
+}
+
+function *printCodeFile(baseDir, file, codeExtension) {
+    const fileUri = baseDir + '/' + file;
+    const content = yield read(fileUri);
+    const stringifiedContent = content.toString();
+
+    return (
+        LINE_SEPARATOR +
+        `[${file}](${fileUri})` +
+        LINE_SEPARATOR +
+        printCode(stringifiedContent, codeExtension)
     );
 }
 
@@ -29,20 +59,39 @@ function *readSampleDirectory(sampleDirectoryName) {
     const dir = BASE_DIRECTORY + '/' + sampleDirectoryName;
     const genereatedSampleFiles = yield listDirectories(dir);
 
-    const reasonContentFile = dir + '/' + genereatedSampleFiles[1];
-    const reasonContent = yield read(reasonContentFile);
-    const stringifiedReasonContent = reasonContent.toString();
+    const mdInfos = yield genereatedSampleFiles
+        .filter((file) => file.substr(-1 * (MARKDOWN_FILE_EXTENSION.length)) === MARKDOWN_FILE_EXTENSION)
+        .map(function * (file) {
+            return yield printInfoFile(dir, file);
+        });
 
-    const jsContentFile = dir + '/' + genereatedSampleFiles[0];
-    const jsContent = yield read(jsContentFile);
-    const stringifiedJsContent = jsContent.toString();
+    const reasonCodes = yield genereatedSampleFiles
+        .filter((file) => file.substr(-1 * (REASON_FILE_EXTENSION.length)) === REASON_FILE_EXTENSION)
+        .map(function * (file) {
+            return yield printCodeFile(dir, file, REASON_CODE_EXTENSION);
+        });
+
+    const jsCodes = yield genereatedSampleFiles
+        .filter((file) => file.substr(-1 * (JS_FILE_EXTENSION.length)) === JS_FILE_EXTENSION)
+        .map(function * (file) {
+            return yield printCodeFile(dir, file, JS_CODE_EXTENSION);
+        });
+
+    const INFO = !mdInfos.length 
+        ? ''
+        : mdInfos.join(PARAGRAPH_SEPARATOR) + PARAGRAPH_SEPARATOR;
 
     return (
-        `### ${sampleDirectoryName}` +
+        `### ${deserializeTitle(sampleDirectoryName)}` +
         PARAGRAPH_SEPARATOR +
-        printCode(stringifiedReasonContent, REASON_CODE_EXTENSION) +
+        INFO +
+        '**Reason Input**' + 
+        LINE_SEPARATOR +
+        reasonCodes.join(PARAGRAPH_SEPARATOR) +
         PARAGRAPH_SEPARATOR +
-        printCode(stringifiedJsContent, JS_CODE_EXTENSION)
+        '**Javascript output**' + 
+        LINE_SEPARATOR +
+        jsCodes.join(PARAGRAPH_SEPARATOR)
     );
 }
 
@@ -54,7 +103,7 @@ function *writeREADME() {
         const TEMPLATE_TOP = templateTopContent.toString();
 
         // TOC
-        const TOC = sampleDirectories.map(directory => `* [${directory}](${directory})`);
+        const TOC = sampleDirectories.map(directory => `* [${deserializeTitle(directory)}](#${directory.toLowerCase()})`);
         
         // Content
         const CONTENT = yield sampleDirectories.map(function * (directory) {
