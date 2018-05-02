@@ -10,16 +10,41 @@ yarn install
 
 ## Samples
 
-* [Bs New Object](#bs_new_object_1)
-* [Global](#global_3)
-* [Nullable](#nullable_4)
-* [Raw Js](#raw_js_2)
-* [Sample](#sample_0)
+* [Sample](#sample)
+* [Bs New Object](#bs-new-object)
+* [Raw Js](#raw-js)
+* [Global](#global)
+* [Nullable](#nullable)
+
+### Sample
+
+> This is a basic sample to how type a sample.
+
+
+***
+**Reason Input** : [Sample.re](./src/0_Sample/Sample.re)
+```reason
+let sample = "sample";
+```
+
+
+**Javascript Output** : [Sample.bs.js](./src/0_Sample/Sample.bs.js)
+```js
+'use strict';
+
+
+var sample = "sample";
+
+exports.sample = sample;
+/* No side effect */
+```
+
+
 
 ### Bs New Object
 
-
-**Reason Input** : [Bs_New_Object_Module.re](./src/Bs_New_Object_1/Bs_New_Object_Module.re)
+***
+**Reason Input** : [Bs_New_Object_Module.re](./src/1_Bs_New_Object/Bs_New_Object_Module.re)
 ```reason
 type t;
 [@bs.module "myLib"] [@bs.new] external create_date_with_module : unit => t = "Date";
@@ -27,7 +52,7 @@ let date = create_date_with_module();
 ```
 
 
-**Javascript Output** : [Bs_New_Object_Module.bs.js](./src/Bs_New_Object_1/Bs_New_Object_Module.bs.js)
+**Javascript Output** : [Bs_New_Object_Module.bs.js](./src/1_Bs_New_Object/Bs_New_Object_Module.bs.js)
 ```js
 'use strict';
 
@@ -39,8 +64,8 @@ exports.date = date;
 /* date Not a pure module */
 ```
 
-
-**Reason Input** : [Bs_New_Object.re](./src/Bs_New_Object_1/Bs_New_Object.re)
+***
+**Reason Input** : [Bs_New_Object.re](./src/1_Bs_New_Object/Bs_New_Object.re)
 ```reason
 type t;
 [@bs.new] external create_date : unit => t = "Date";
@@ -48,7 +73,7 @@ let date = create_date();
 ```
 
 
-**Javascript Output** : [Bs_New_Object.bs.js](./src/Bs_New_Object_1/Bs_New_Object.bs.js)
+**Javascript Output** : [Bs_New_Object.bs.js](./src/1_Bs_New_Object/Bs_New_Object.bs.js)
 ```js
 'use strict';
 
@@ -61,22 +86,52 @@ exports.date = date;
 
 
 
+### Raw Js
+
+***
+**Reason Input** : [Raw_Js.re](./src/2_Raw_Js/Raw_Js.re)
+```reason
+let add = [%raw "a + b"];
+[%%raw "var a = 1"];
+let myFunction = [%raw (a, b) => "return a + b"];
+```
+
+
+**Javascript Output** : [Raw_Js.bs.js](./src/2_Raw_Js/Raw_Js.bs.js)
+```js
+'use strict';
+
+
+var add = (a + b);
+
+var a = 1
+;
+
+var myFunction = function (a,b){return a + b};
+
+exports.add = add;
+exports.myFunction = myFunction;
+/* add Not a pure module */
+```
+
+
+
 ### Global
 
-
-**Reason Input** : [Global_value.re](./src/Global_3/Global_value.re)
+***
+**Reason Input** : [Global_value.re](./src/3_Global/Global_value.re)
 ```reason
 [@bs.val] external setTimeout : (unit => unit, int) => float = "setTimeout";
 ```
 
 
-**Javascript Output** : [Global_value.bs.js](./src/Global_3/Global_value.bs.js)
+**Javascript Output** : [Global_value.bs.js](./src/3_Global/Global_value.bs.js)
 ```js
 /* This output is empty. Its source's type definitions, externals and/or unused code got optimized away. */
 ```
 
-
-**Reason Input** : [Global_module.re](./src/Global_3/Global_module.re)
+***
+**Reason Input** : [Global_module.re](./src/3_Global/Global_module.re)
 ```reason
 [@bs.val] [@bs.scope "Math"] external random : unit => float = "random";
 let someNumber = random();
@@ -86,7 +141,7 @@ let ancestorOriginsLength = length;
 ```
 
 
-**Javascript Output** : [Global_module.bs.js](./src/Global_3/Global_module.bs.js)
+**Javascript Output** : [Global_module.bs.js](./src/3_Global/Global_module.bs.js)
 ```js
 'use strict';
 
@@ -104,8 +159,8 @@ exports.ancestorOriginsLength = ancestorOriginsLength;
 
 ### Nullable
 
-
-**Reason Input** : [Nullable_convert_to_option.re](./src/Nullable_4/Nullable_convert_to_option.re)
+***
+**Reason Input** : [Nullable_convert_to_option.re](./src/4_Nullable/Nullable_convert_to_option.re)
 ```reason
 type element;
 
@@ -114,7 +169,7 @@ let div = getElementById("myId");
 ```
 
 
-**Javascript Output** : [Nullable_convert_to_option.bs.js](./src/Nullable_4/Nullable_convert_to_option.bs.js)
+**Javascript Output** : [Nullable_convert_to_option.bs.js](./src/4_Nullable/Nullable_convert_to_option.bs.js)
 ```js
 'use strict';
 
@@ -127,8 +182,8 @@ exports.div = div$1;
 /* div Not a pure module */
 ```
 
-
-**Reason Input** : [Nullable.re](./src/Nullable_4/Nullable.re)
+***
+**Reason Input** : [Nullable.re](./src/4_Nullable/Nullable.re)
 ```reason
 let jsNull = Js.Nullable.null;
 let jsUndefined = Js.Nullable.undefined;
@@ -139,7 +194,7 @@ let result3: option(int) = Js.Nullable.toOption(Js.Nullable.return(10));
 ```
 
 
-**Javascript Output** : [Nullable.bs.js](./src/Nullable_4/Nullable.bs.js)
+**Javascript Output** : [Nullable.bs.js](./src/4_Nullable/Nullable.bs.js)
 ```js
 'use strict';
 
@@ -162,60 +217,5 @@ exports.result1 = result1;
 exports.result2 = result2;
 exports.result3 = result3;
 /* result2 Not a pure module */
-```
-
-
-
-### Raw Js
-
-
-**Reason Input** : [Raw_Js.re](./src/Raw_Js_2/Raw_Js.re)
-```reason
-let add = [%raw "a + b"];
-[%%raw "var a = 1"];
-let myFunction = [%raw (a, b) => "return a + b"];
-```
-
-
-**Javascript Output** : [Raw_Js.bs.js](./src/Raw_Js_2/Raw_Js.bs.js)
-```js
-'use strict';
-
-
-var add = (a + b);
-
-var a = 1
-;
-
-var myFunction = function (a,b){return a + b};
-
-exports.add = add;
-exports.myFunction = myFunction;
-/* add Not a pure module */
-```
-
-
-
-### Sample
-
-> This is a basic sample to how type a sample.
-
-
-
-**Reason Input** : [Sample.re](./src/Sample_0/Sample.re)
-```reason
-let sample = "sample";
-```
-
-
-**Javascript Output** : [Sample.bs.js](./src/Sample_0/Sample.bs.js)
-```js
-'use strict';
-
-
-var sample = "sample";
-
-exports.sample = sample;
-/* No side effect */
 ```
 

@@ -14,13 +14,23 @@ const REASON_FILE_EXTENSION = 're';
 const JS_CODE_EXTENSION = 'js';
 const JS_FILE_EXTENSION = 'bs.js';
 const MARKDOWN_FILE_EXTENSION = 'md';
+const SPACE_DELIMITER = ' ';
+const DASH_DELIMITER = '-';
+const UNDERSCORE_DELIMITER = '_';
 
-function deserializeTitle(serializedTitle) {
-    const index = serializedTitle.lastIndexOf('_');
-
+function deserializeTitle(serializedTitle, replace = SPACE_DELIMITER) {
+    const index = serializedTitle.indexOf(UNDERSCORE_DELIMITER);
     return serializedTitle
-        .substr(0, index)
-        .replace(/_/gi, ' ');
+        .substr(index + 1)
+        .replace(/_/gi, replace);
+}
+
+function generateTOC(directories) {
+    return directories.map(directory => {
+        const title = deserializeTitle(directory, SPACE_DELIMITER);
+        const link = deserializeTitle(directory.toLowerCase(), DASH_DELIMITER);
+        return `* [${title}](#${link})`;
+    });
 }
 
 function printCode(content, type) {
@@ -63,12 +73,16 @@ function *printCodeFile(baseDir, file) {
         ? 'Reason Input'
         : 'Javascript Output'
 
+    const separator = isReasonFile(file)
+        ? '***' + LINE_SEPARATOR
+        : LINE_SEPARATOR;
+
     const fileUri = baseDir + '/' + file;
     const content = yield read(fileUri);
     const stringifiedContent = content.toString();
 
     return (
-        LINE_SEPARATOR +
+        separator +
         `**${header}** : ` +
         `[${file}](${fileUri})` +
         LINE_SEPARATOR +
@@ -102,7 +116,7 @@ function *readSampleDirectory(sampleDirectoryName) {
         : mdInfos.join(PARAGRAPH_SEPARATOR) + PARAGRAPH_SEPARATOR;
 
     return (
-        `### ${deserializeTitle(sampleDirectoryName)}` +
+        `### ${deserializeTitle(sampleDirectoryName, SPACE_DELIMITER)}` +
         PARAGRAPH_SEPARATOR +
         INFO +
         codes.join(PARAGRAPH_SEPARATOR) +
@@ -118,7 +132,7 @@ function *writeREADME() {
         const TEMPLATE_TOP = templateTopContent.toString();
 
         // TOC
-        const TOC = sampleDirectories.map(directory => `* [${deserializeTitle(directory)}](#${directory.toLowerCase()})`);
+        const TOC = generateTOC(sampleDirectories);
         
         // Content
         const CONTENT = yield sampleDirectories.map(function * (directory) {
