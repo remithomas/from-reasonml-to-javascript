@@ -26,6 +26,7 @@ Note: if you add a `.md` file (markdown), it will be print at the top of your ge
 * [Raw Js](#raw-js)
 * [Global](#global)
 * [Nullable](#nullable)
+* [Object](#object)
 
 ### Sample
 
@@ -228,5 +229,88 @@ exports.result1 = result1;
 exports.result2 = result2;
 exports.result3 = result3;
 /* result2 Not a pure module */
+```
+
+
+
+### Object
+
+***
+**Reason Input** : [Record_mode.re](./src/4_Object/Record_mode.re)
+```reason
+[@bs.deriving abstract]
+type person = {
+  [@bs.optional] name: string,
+  age: int,
+  mutable job: string,
+};
+
+[@bs.send] external getNickname : person => string = "getNickname";
+
+[@bs.val] external john : person = "john";
+
+let age = john |. age;
+john |. jobSet("Accountant");
+let nick = john |. getNickname;
+```
+
+
+**Javascript Output** : [Record_mode.bs.js](./src/4_Object/Record_mode.bs.js)
+```js
+'use strict';
+
+
+var age = john.age;
+
+john.job = "Accountant";
+
+var nick = john.getNickname();
+
+exports.age = age;
+exports.nick = nick;
+/* age Not a pure module */
+```
+
+***
+**Reason Input** : [New_instance.re](./src/4_Object/New_instance.re)
+```reason
+type t;
+[@bs.new] external createDate : unit => t = "Date";
+
+/* example */
+let date = createDate();
+```
+
+
+**Javascript Output** : [New_instance.bs.js](./src/4_Object/New_instance.bs.js)
+```js
+'use strict';
+
+
+var date = new Date();
+
+exports.date = date;
+/* date Not a pure module */
+```
+
+***
+**Reason Input** : [Hash_map_mode.re](./src/4_Object/Hash_map_mode.re)
+```reason
+let myMap = Js.Dict.empty();
+Js.Dict.set(myMap, "Allison", 10);
+```
+
+
+**Javascript Output** : [Hash_map_mode.bs.js](./src/4_Object/Hash_map_mode.bs.js)
+```js
+'use strict';
+
+
+var myMap = { };
+
+myMap["Allison"] = 10;
+
+exports.myMap = myMap;
+/*  Not a pure module */
 ```
 
