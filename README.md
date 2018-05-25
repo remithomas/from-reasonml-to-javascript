@@ -27,6 +27,7 @@ Note: if you add a `.md` file (markdown), it will be print at the top of your ge
 * [Global](#global)
 * [Nullable](#nullable)
 * [Object](#object)
+* [Import](#import)
 
 ### Sample
 
@@ -236,7 +237,7 @@ exports.result3 = result3;
 ### Object
 
 ***
-**Reason Input** : [Record_mode.re](./src/4_Object/Record_mode.re)
+**Reason Input** : [Record_mode.re](./src/5_Object/Record_mode.re)
 ```reason
 [@bs.deriving abstract]
 type person = {
@@ -255,7 +256,7 @@ let nick = john |. getNickname;
 ```
 
 
-**Javascript Output** : [Record_mode.bs.js](./src/4_Object/Record_mode.bs.js)
+**Javascript Output** : [Record_mode.bs.js](./src/5_Object/Record_mode.bs.js)
 ```js
 'use strict';
 
@@ -272,7 +273,7 @@ exports.nick = nick;
 ```
 
 ***
-**Reason Input** : [New_instance.re](./src/4_Object/New_instance.re)
+**Reason Input** : [New_instance.re](./src/5_Object/New_instance.re)
 ```reason
 type t;
 [@bs.new] external createDate : unit => t = "Date";
@@ -282,7 +283,7 @@ let date = createDate();
 ```
 
 
-**Javascript Output** : [New_instance.bs.js](./src/4_Object/New_instance.bs.js)
+**Javascript Output** : [New_instance.bs.js](./src/5_Object/New_instance.bs.js)
 ```js
 'use strict';
 
@@ -294,14 +295,14 @@ exports.date = date;
 ```
 
 ***
-**Reason Input** : [Hash_map_mode.re](./src/4_Object/Hash_map_mode.re)
+**Reason Input** : [Hash_map_mode.re](./src/5_Object/Hash_map_mode.re)
 ```reason
 let myMap = Js.Dict.empty();
 Js.Dict.set(myMap, "Allison", 10);
 ```
 
 
-**Javascript Output** : [Hash_map_mode.bs.js](./src/4_Object/Hash_map_mode.bs.js)
+**Javascript Output** : [Hash_map_mode.bs.js](./src/5_Object/Hash_map_mode.bs.js)
 ```js
 'use strict';
 
@@ -312,5 +313,68 @@ myMap["Allison"] = 10;
 
 exports.myMap = myMap;
 /*  Not a pure module */
+```
+
+
+
+### Import
+
+***
+**Reason Input** : [Import_second_default_value.re](./src/6_Import/Import_second_default_value.re)
+```reason
+[@bs.module "./student"] external studentName : string = "default";
+Js.log(studentName);
+```
+
+
+**Javascript Output** : [Import_second_default_value.bs.js](./src/6_Import/Import_second_default_value.bs.js)
+```js
+'use strict';
+
+var Student = require("./student");
+
+console.log(Student.default);
+
+/*  Not a pure module */
+```
+
+***
+**Reason Input** : [Import_default_value.re](./src/6_Import/Import_default_value.re)
+```reason
+[@bs.module] external leftPad : string => int => string = "./leftPad";
+let paddedResult = leftPad("hi", 5);
+```
+
+
+**Javascript Output** : [Import_default_value.bs.js](./src/6_Import/Import_default_value.bs.js)
+```js
+'use strict';
+
+var LeftPad = require("./leftPad");
+
+var paddedResult = LeftPad("hi", 5);
+
+exports.paddedResult = paddedResult;
+/* paddedResult Not a pure module */
+```
+
+***
+**Reason Input** : [Import.re](./src/6_Import/Import.re)
+```reason
+[@bs.module "path"] external dirname : string => string = "dirname";
+let root = dirname("/User/chenglou");
+```
+
+
+**Javascript Output** : [Import.bs.js](./src/6_Import/Import.bs.js)
+```js
+'use strict';
+
+var Path = require("path");
+
+var root = Path.dirname("/User/chenglou");
+
+exports.root = root;
+/* root Not a pure module */
 ```
 
