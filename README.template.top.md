@@ -2,9 +2,11 @@
 
 > Samples of bucklescript's ReasonMl transpils to javascript 
 
-**Why ? ** Because it's important to know how your code will be generated. It's also usefull when you create some bindings or also when you start coding with `ReasonML`.
+**Why ?** Because it's important to know how your code will be generated. It's also usefull when you create some bindings or also when you start coding with `ReasonML` and you do not know what it looks like.
 
 ## Development
+
+Installation development kit.
 
 ```bash
 yarn install
