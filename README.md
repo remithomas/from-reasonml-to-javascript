@@ -24,12 +24,16 @@ Note: if you add a `.md` file (markdown), it will be print at the top of your ge
 ## Samples
 
 * [Sample](#sample)
+* [Fast Pipe](#fast-pipe)
 * [Bs New Object](#bs-new-object)
 * [Raw Js](#raw-js)
 * [Global](#global)
 * [Nullable](#nullable)
 * [Object](#object)
 * [Import](#import)
+* [Regular Expression](#regular-expression)
+* [Exceptions](#exceptions)
+* [JSON](#json)
 
 ### Sample
 
@@ -52,6 +56,148 @@ var sample = "sample";
 
 exports.sample = sample;
 /* No side effect */
+```
+
+
+
+### Fast Pipe
+
+***
+**Reason Input** : [Pipelining.re](./src/10_Fast_Pipe/Pipelining.re)
+```reason
+/* let foo = n => n + 1;
+let bar = () => 2;
+
+let a = 1;
+let b = 2;
+
+let result = a
+|. foo(b)
+|. bar */
+```
+
+
+**Javascript Output** : [Pipelining.bs.js](./src/10_Fast_Pipe/Pipelining.bs.js)
+```js
+/* This output is empty. Its source's type definitions, externals and/or unused code got optimized away. */
+```
+
+***
+**Reason Input** : [PipeIntoVariants.re](./src/10_Fast_Pipe/PipeIntoVariants.re)
+```reason
+let name = "";
+let preprocess = arg => arg ++ "!";
+
+/* let result = name |. preprocess |. Some; */
+```
+
+
+**Javascript Output** : [PipeIntoVariants.bs.js](./src/10_Fast_Pipe/PipeIntoVariants.bs.js)
+```js
+'use strict';
+
+
+function preprocess(arg) {
+  return arg + "!";
+}
+
+var name = "";
+
+exports.name = name;
+exports.preprocess = preprocess;
+/* No side effect */
+```
+
+***
+**Reason Input** : [JSMethodChaining.re](./src/10_Fast_Pipe/JSMethodChaining.re)
+```reason
+[@bs.send] external map : (array('a), 'a => 'b) => array('b) = "";
+[@bs.send] external filter : (array('a), 'a => 'b) => array('b) = "";
+
+type request;
+external asyncRequest: unit => request = "";
+[@bs.send] external setWaitDuration: (request, int) => request = "";
+[@bs.send] external send: request => unit = "";
+
+/* Use like this */
+let result = filter(map([|1, 2, 3|], a => a + 1), a => a mod 2 == 0);
+send(setWaitDuration(asyncRequest(), 4000));
+```
+
+
+**Javascript Output** : [JSMethodChaining.bs.js](./src/10_Fast_Pipe/JSMethodChaining.bs.js)
+```js
+'use strict';
+
+var Caml_missing_polyfill = require("bs-platform/lib/js/caml_missing_polyfill.js");
+
+var result = /* array */[
+      1,
+      2,
+      3
+    ].map((function (a) {
+          return a + 1 | 0;
+        })).filter((function (a) {
+        return a % 2 === 0;
+      }));
+
+Caml_missing_polyfill.not_implemented("").setWaitDuration(4000).send();
+
+exports.result = result;
+/* result Not a pure module */
+```
+
+***
+**Reason Input** : [GetMultipleResults.re](./src/10_Fast_Pipe/GetMultipleResults.re)
+```reason
+let random = [%raw "Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5);"];
+
+let myData = "abc";
+
+let getLeft = data => random ++ data ++ "_left";
+let getMiddle = data => random ++ data ++ "_middle";
+let getRight = data => random ++ data ++ "_right";
+
+let (left, middle, right) = myData |. (getLeft, getMiddle, getRight);
+```
+
+
+**Javascript Output** : [GetMultipleResults.bs.js](./src/10_Fast_Pipe/GetMultipleResults.bs.js)
+```js
+'use strict';
+
+
+var random = (Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 5););
+
+var myData = "abc";
+
+function getLeft(data) {
+  return random + (data + "_left");
+}
+
+function getMiddle(data) {
+  return random + (data + "_middle");
+}
+
+function getRight(data) {
+  return random + (data + "_right");
+}
+
+var left = getLeft(myData);
+
+var middle = getMiddle(myData);
+
+var right = getRight(myData);
+
+exports.random = random;
+exports.myData = myData;
+exports.getLeft = getLeft;
+exports.getMiddle = getMiddle;
+exports.getRight = getRight;
+exports.left = left;
+exports.middle = middle;
+exports.right = right;
+/* random Not a pure module */
 ```
 
 
@@ -378,5 +524,161 @@ var root = Path.dirname("/User/chenglou");
 
 exports.root = root;
 /* root Not a pure module */
+```
+
+
+
+### Regular Expression
+
+***
+**Reason Input** : [RegularExpression.re](./src/7_Regular_Expression/RegularExpression.re)
+```reason
+let f = [%bs.re "/b/g"]
+```
+
+
+**Javascript Output** : [RegularExpression.bs.js](./src/7_Regular_Expression/RegularExpression.bs.js)
+```js
+'use strict';
+
+
+var f = (/b/g);
+
+exports.f = f;
+/* f Not a pure module */
+```
+
+
+
+### Exceptions
+
+***
+**Reason Input** : [PromiseExceptions.re](./src/8_Exceptions/PromiseExceptions.re)
+```reason
+exception UnhandledPromise;
+
+let handlePromiseFailure =
+  [@bs.open]
+  (
+    fun
+    | Not_found => {
+        Js.log("Not found");
+        Js.Promise.resolve()
+      }
+  );
+
+Js.Promise.reject(Not_found)
+  |> Js.Promise.catch(
+     (error) =>
+       switch (handlePromiseFailure(error)) {
+       | Some(x) => x
+       | None => raise(UnhandledPromise)
+       }
+   );
+```
+
+
+**Javascript Output** : [PromiseExceptions.bs.js](./src/8_Exceptions/PromiseExceptions.bs.js)
+```js
+'use strict';
+
+var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
+
+var UnhandledPromise = Caml_exceptions.create("PromiseExceptions.UnhandledPromise");
+
+function handlePromiseFailure(match) {
+  if (Caml_exceptions.isCamlExceptionOrOpenVariant(match) && match === Caml_builtin_exceptions.not_found) {
+    return /* Some */[(console.log("Not found"), Promise.resolve(/* () */0))];
+  } else {
+    return /* None */0;
+  }
+}
+
+Promise.reject(Caml_builtin_exceptions.not_found).catch((function (error) {
+        var match = handlePromiseFailure(error);
+        if (match) {
+          return match[0];
+        } else {
+          throw UnhandledPromise;
+        }
+      }));
+
+exports.UnhandledPromise = UnhandledPromise;
+exports.handlePromiseFailure = handlePromiseFailure;
+/*  Not a pure module */
+```
+
+***
+**Reason Input** : [Exceptions.re](./src/8_Exceptions/Exceptions.re)
+```reason
+try (
+  Js.Exn.raiseError("oops!")
+) {
+| Js.Exn.Error(e) =>
+  switch (Js.Exn.message(e)) {
+  | Some(message) => Js.log({j|Error: $message|j})
+  | None => Js.log("An unknown error occurred")
+  }
+};
+```
+
+
+**Javascript Output** : [Exceptions.bs.js](./src/8_Exceptions/Exceptions.bs.js)
+```js
+'use strict';
+
+var Js_exn = require("bs-platform/lib/js/js_exn.js");
+
+try {
+  Js_exn.raiseError("oops!");
+}
+catch (raw_exn){
+  var exn = Js_exn.internalToOCamlException(raw_exn);
+  if (exn[0] === Js_exn.$$Error) {
+    var match = exn[1].message;
+    if (match !== undefined) {
+      console.log("Error: " + (String(match) + ""));
+    } else {
+      console.log("An unknown error occurred");
+    }
+  } else {
+    throw exn;
+  }
+}
+
+/*  Not a pure module */
+```
+
+
+
+### JSON
+
+***
+**Reason Input** : [UnsafeConversion.re](./src/9_JSON/UnsafeConversion.re)
+```reason
+[@bs.deriving abstract]
+type data = {name: string};
+
+[@bs.scope "JSON"] [@bs.val]
+external parseIntoMyData : string => data = "parse";
+
+let result = parseIntoMyData("{\"name\": \"Luke\"}");
+let n = result |. name;
+```
+
+
+**Javascript Output** : [UnsafeConversion.bs.js](./src/9_JSON/UnsafeConversion.bs.js)
+```js
+'use strict';
+
+
+var result = JSON.parse("{\"name\": \"Luke\"}");
+
+var n = result.name;
+
+exports.result = result;
+exports.n = n;
+/* result Not a pure module */
 ```
 
