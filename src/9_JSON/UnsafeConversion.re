@@ -5,4 +5,4 @@ type data = {name: string};
 external parseIntoMyData : string => data = "parse";
 
 let result = parseIntoMyData("{\"name\": \"Luke\"}");
-let n = result |. name;
+let n = result |. nameGet;

@@ -268,7 +268,7 @@ var add = (a + b);
 var a = 1
 ;
 
-var myFunction = function (a,b){return a + b};
+function myFunction (a,b){return a + b};
 
 exports.add = add;
 exports.myFunction = myFunction;
@@ -334,10 +334,11 @@ let div = getElementById("myId");
 ```js
 'use strict';
 
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 var div = document.getElementById("myId");
 
-var div$1 = (div == null) ? /* None */0 : [div];
+var div$1 = (div == null) ? undefined : Caml_option.some(div);
 
 exports.div = div$1;
 /* div Not a pure module */
@@ -359,10 +360,10 @@ let result3: option(int) = Js.Nullable.toOption(Js.Nullable.return(10));
 ```js
 'use strict';
 
-var Js_primitive = require("bs-platform/lib/js/js_primitive.js");
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var Js_null_undefined = require("bs-platform/lib/js/js_null_undefined.js");
 
-var result2 = Js_null_undefined.fromOption(/* Some */[10]);
+var result2 = Js_null_undefined.fromOption(10);
 
 var jsNull = null;
 
@@ -370,7 +371,7 @@ var jsUndefined = undefined;
 
 var result1 = "hello";
 
-var result3 = Js_primitive.null_undefined_to_opt(10);
+var result3 = Caml_option.nullable_to_opt(10);
 
 exports.jsNull = jsNull;
 exports.jsUndefined = jsUndefined;
@@ -582,23 +583,23 @@ Js.Promise.reject(Not_found)
 ```js
 'use strict';
 
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 var UnhandledPromise = Caml_exceptions.create("PromiseExceptions.UnhandledPromise");
 
 function handlePromiseFailure(match) {
-  if (Caml_exceptions.isCamlExceptionOrOpenVariant(match) && match === Caml_builtin_exceptions.not_found) {
-    return /* Some */[(console.log("Not found"), Promise.resolve(/* () */0))];
-  } else {
-    return /* None */0;
+  if (Caml_exceptions.caml_is_extension(match) && match === Caml_builtin_exceptions.not_found) {
+    return Caml_option.some((console.log("Not found"), Promise.resolve(/* () */0)));
   }
+  
 }
 
 Promise.reject(Caml_builtin_exceptions.not_found).catch((function (error) {
         var match = handlePromiseFailure(error);
-        if (match) {
-          return match[0];
+        if (match !== undefined) {
+          return Caml_option.valFromOption(match);
         } else {
           throw UnhandledPromise;
         }
@@ -629,12 +630,13 @@ try (
 'use strict';
 
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
+var Caml_js_exceptions = require("bs-platform/lib/js/caml_js_exceptions.js");
 
 try {
   Js_exn.raiseError("oops!");
 }
 catch (raw_exn){
-  var exn = Js_exn.internalToOCamlException(raw_exn);
+  var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
   if (exn[0] === Js_exn.$$Error) {
     var match = exn[1].message;
     if (match !== undefined) {
@@ -664,7 +666,7 @@ type data = {name: string};
 external parseIntoMyData : string => data = "parse";
 
 let result = parseIntoMyData("{\"name\": \"Luke\"}");
-let n = result |. name;
+let n = result |. nameGet;
 ```
 
 
