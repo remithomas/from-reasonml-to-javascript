@@ -131,10 +131,8 @@ function *writeREADME() {
     const templateTopContent = yield read('./README.template.top.md');
     const TEMPLATE_TOP = templateTopContent.toString();
 
-    // TOC
     const TOC = generateTOC(sampleDirectories);
-    
-    // Content
+
     const CONTENT = yield sampleDirectories.map(function * (directory) {
       return yield readSampleDirectory(directory);
     });
